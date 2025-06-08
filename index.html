@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test prędkości łącza</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.5rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test prędkości łącza internetowego</h1>
+  <button id="startTestBtn">Rozpocznij test</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    const testFileUrl = "https://speed.hetzner.de/100MB.bin"; // plik testowy 100MB do pobrania
+    const fileSizeBytes = 100 * 1024 * 1024; // 100 MB w bajtach
+
+    document.getElementById("startTestBtn").addEventListener("click", () => {
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "Trwa testowanie prędkości...";
+
+      const startTime = performance.now();
+
+      fetch(testFileUrl, {cache: "no-cache"})
+        .then(response => {
+          if (!response.ok) throw new Error("Błąd pobierania pliku");
+          return response.blob();
+        })
+        .then(() => {
+          const endTime = performance.now();
+          const durationSeconds = (endTime - startTime) / 1000;
+
+          // Obliczanie prędkości w bitach na sekundę (bps)
+          const bitsLoaded = fileSizeBytes * 8;
+          const speedBps = bitsLoaded / durationSeconds;
+
+          // Konwersja na Mbps (megabity na sekundę)
+          const speedMbps = (speedBps / 1_000_000).toFixed(2);
+
+          resultDiv.textContent = `Prędkość pobierania: ${speedMbps} Mbps`;
+        })
+        .catch(err => {
+          resultDiv.textContent = "Wystąpił błąd podczas testu: " + err.message;
+        });
+    });
+  </script>
+</body>
+</html>
